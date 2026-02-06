@@ -6,9 +6,9 @@ import asyncio
 
 import pytest
 
-from good_start.agent import Agent
 from good_start.loader import load_prompt
 from good_start.result import Result
+from good_start.runtime import resolve_runtime
 
 _result_key = pytest.StashKey[Result]()
 
@@ -27,6 +27,12 @@ def pytest_addoption(parser: pytest.Parser) -> None:
         default=None,
         help="Path to a custom prompt template file.",
     )
+    group.addoption(
+        "--good-start-no-container",
+        action="store_true",
+        default=False,
+        help="Run the good-start agent locally instead of in a container.",
+    )
     parser.addini(
         "good_start_target",
         help="Default target path for good-start tests.",
@@ -36,6 +42,12 @@ def pytest_addoption(parser: pytest.Parser) -> None:
         "good_start_prompt",
         help="Path to a custom prompt template file.",
         default=None,
+    )
+    parser.addini(
+        "good_start_no_container",
+        help="Run the good-start agent locally instead of in a container.",
+        type="bool",
+        default=False,
     )
 
 
@@ -96,9 +108,14 @@ def good_start(request: pytest.FixtureRequest):
 
         rendered = prompt.render(target=target)
 
+        # -- resolve runtime mode
+        no_container = config.getoption("good_start_no_container") or config.getini(
+            "good_start_no_container"
+        )
+        runtime = resolve_runtime(no_container=no_container)
+
         # -- run agent
-        agent = Agent()
-        result = asyncio.run(agent.run(rendered))
+        result = asyncio.run(runtime.run(rendered, target))
 
         # -- stash result for report hook
         request.node.stash[_result_key] = result

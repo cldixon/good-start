@@ -6,8 +6,8 @@ from rich.console import Console
 from rich.panel import Panel
 from rich.text import Text
 
-from good_start.agent import Agent
 from good_start.loader import load_prompt
+from good_start.runtime import resolve_runtime
 
 app = typer.Typer(
     name="good-start",
@@ -28,6 +28,11 @@ def check(
         default=".",
         help="Path to the getting-started documentation file, or '.' to let the agent find it.",
     ),
+    no_container: bool = typer.Option(
+        False,
+        "--no-container",
+        help="Run the agent directly on the host instead of in a container.",
+    ),
 ) -> None:
     """Run the good-start agent against a project's documentation."""
     target_path = Path(target)
@@ -38,8 +43,8 @@ def check(
     prompt = load_prompt()
     rendered = prompt.render(target=target)
 
-    agent = Agent()
-    result = asyncio.run(agent.run(rendered))
+    runtime = resolve_runtime(no_container=no_container)
+    result = asyncio.run(runtime.run(rendered, target))
 
     # -- build output
     if result.passed:
