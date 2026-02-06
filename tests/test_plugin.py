@@ -1,4 +1,4 @@
-from unittest.mock import AsyncMock, patch
+from unittest.mock import AsyncMock, MagicMock, patch
 
 import pytest
 
@@ -10,45 +10,49 @@ def _make_result(passed: bool, details: str) -> Result:
     return Result(agent_messages=[], agent_result=findings)
 
 
+def _mock_runtime(result: Result) -> MagicMock:
+    runtime = MagicMock()
+    runtime.run = AsyncMock(return_value=result)
+    return runtime
+
+
 # ---------------------------------------------------------------------------
-# Unit tests — mock the Agent, use the fixture via normal pytest injection
+# Unit tests — mock resolve_runtime, use the fixture via normal pytest injection
 # ---------------------------------------------------------------------------
 
 
 class TestFixtureCallable:
-    @patch("good_start.plugin.Agent")
-    def test_default_target(self, mock_agent_cls, good_start):
+    @patch("good_start.plugin.resolve_runtime")
+    def test_default_target(self, mock_resolve, good_start):
         """With no args, the prompt renders the '.' (auto-discover) branch."""
         result = _make_result(passed=True, details="OK")
-        instance = mock_agent_cls.return_value
-        instance.run = AsyncMock(return_value=result)
+        mock_resolve.return_value = _mock_runtime(result)
 
         ret = good_start()
 
-        instance.run.assert_called_once()
-        rendered_prompt = instance.run.call_args[0][0]
+        runtime = mock_resolve.return_value
+        runtime.run.assert_called_once()
+        rendered_prompt = runtime.run.call_args[0][0]
         assert "getting-started documentation" in rendered_prompt
         assert ret.passed is True
 
-    @patch("good_start.plugin.Agent")
-    def test_explicit_target(self, mock_agent_cls, good_start):
+    @patch("good_start.plugin.resolve_runtime")
+    def test_explicit_target(self, mock_resolve, good_start):
         """Passing a target directly renders that file in the prompt."""
         result = _make_result(passed=True, details="OK")
-        instance = mock_agent_cls.return_value
-        instance.run = AsyncMock(return_value=result)
+        mock_resolve.return_value = _mock_runtime(result)
 
         ret = good_start("README.md")
 
-        rendered_prompt = instance.run.call_args[0][0]
+        rendered_prompt = mock_resolve.return_value.run.call_args[0][0]
         assert "README.md" in rendered_prompt
         assert ret.passed is True
 
-    @patch("good_start.plugin.Agent")
-    def test_returns_result_object(self, mock_agent_cls, good_start):
+    @patch("good_start.plugin.resolve_runtime")
+    def test_returns_result_object(self, mock_resolve, good_start):
         """The factory returns a Result with passed and details."""
         result = _make_result(passed=False, details="Step 3 failed.")
-        instance = mock_agent_cls.return_value
-        instance.run = AsyncMock(return_value=result)
+        mock_resolve.return_value = _mock_runtime(result)
 
         ret = good_start()
 
@@ -56,19 +60,18 @@ class TestFixtureCallable:
         assert ret.passed is False
         assert ret.details == "Step 3 failed."
 
-    @patch("good_start.plugin.Agent")
-    def test_custom_prompt_path(self, mock_agent_cls, good_start, tmp_path):
+    @patch("good_start.plugin.resolve_runtime")
+    def test_custom_prompt_path(self, mock_resolve, good_start, tmp_path):
         """A custom prompt file is loaded when prompt_path is given."""
         prompt_file = tmp_path / "custom.md"
         prompt_file.write_text("Custom instructions for {{ target }}.")
 
         result = _make_result(passed=True, details="OK")
-        instance = mock_agent_cls.return_value
-        instance.run = AsyncMock(return_value=result)
+        mock_resolve.return_value = _mock_runtime(result)
 
         good_start(".", prompt_path=str(prompt_file))
 
-        rendered_prompt = instance.run.call_args[0][0]
+        rendered_prompt = mock_resolve.return_value.run.call_args[0][0]
         assert "Custom instructions for ." in rendered_prompt
 
 
@@ -86,6 +89,7 @@ class TestPluginRegistration:
         result = pytester.runpytest("--help")
         result.stdout.fnmatch_lines(["*--good-start-target*"])
         result.stdout.fnmatch_lines(["*--good-start-prompt*"])
+        result.stdout.fnmatch_lines(["*--good-start-no-container*"])
 
     def test_fixture_is_available(self, pytester: pytest.Pytester):
         """A test requesting the fixture can be collected."""
@@ -119,18 +123,20 @@ class TestPluginExecution:
         """Full integration: fixture runs agent (mocked) and assertion works."""
         pytester.makeconftest(
             """
-            from unittest.mock import AsyncMock, patch
+            from unittest.mock import AsyncMock, MagicMock, patch
             from good_start.result import AgentFindings, Result
 
             _patcher = None
 
             def pytest_configure(config):
                 global _patcher
-                _patcher = patch("good_start.plugin.Agent")
-                mock_cls = _patcher.start()
+                _patcher = patch("good_start.plugin.resolve_runtime")
+                mock_resolve = _patcher.start()
                 findings = AgentFindings(passed=True, details="All good!")
                 result = Result(agent_messages=[], agent_result=findings)
-                mock_cls.return_value.run = AsyncMock(return_value=result)
+                runtime = MagicMock()
+                runtime.run = AsyncMock(return_value=result)
+                mock_resolve.return_value = runtime
 
             def pytest_unconfigure(config):
                 if _patcher:
@@ -151,18 +157,20 @@ class TestPluginExecution:
         """On failure, agent details appear in the report output."""
         pytester.makeconftest(
             """
-            from unittest.mock import AsyncMock, patch
+            from unittest.mock import AsyncMock, MagicMock, patch
             from good_start.result import AgentFindings, Result
 
             _patcher = None
 
             def pytest_configure(config):
                 global _patcher
-                _patcher = patch("good_start.plugin.Agent")
-                mock_cls = _patcher.start()
+                _patcher = patch("good_start.plugin.resolve_runtime")
+                mock_resolve = _patcher.start()
                 findings = AgentFindings(passed=False, details="pip install broke on step 3")
                 result = Result(agent_messages=[], agent_result=findings)
-                mock_cls.return_value.run = AsyncMock(return_value=result)
+                runtime = MagicMock()
+                runtime.run = AsyncMock(return_value=result)
+                mock_resolve.return_value = runtime
 
             def pytest_unconfigure(config):
                 if _patcher:
