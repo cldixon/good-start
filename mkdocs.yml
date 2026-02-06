@@ -1,0 +1,14 @@
+site_name: good-start
+site_url: https://cldixon.github.io/good-start/
+site_description: Test whether a codebase's getting-started documentation is accurate and easy to follow
+repo_url: https://github.com/cldixon/good-start
+
+theme:
+  name: terminal
+  palette: default
+
+nav:
+  - Home: index.md
+  - CLI: cli.md
+  - Pytest Plugin: pytest-plugin.md
+  - Examples: examples.md
