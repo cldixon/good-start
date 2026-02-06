@@ -15,6 +15,9 @@ dependencies = [
 [project.scripts]
 good-start = "good_start.cli:app"
 
+[project.entry-points."pytest11"]
+good-start = "good_start.plugin"
+
 [build-system]
 requires = ["hatchling"]
 build-backend = "hatchling.build"
