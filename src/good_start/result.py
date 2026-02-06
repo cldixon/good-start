@@ -1,7 +1,10 @@
+from datetime import datetime
+
+from claude_agent_sdk import Message
 from pydantic import BaseModel, Field
 
 
-class Result(BaseModel):
+class AgentFindings(BaseModel):
     passed: bool = Field(
         description="Boolean indicating whether the agent was able to follow the instructions end to end."
     )
@@ -17,3 +20,14 @@ class Result(BaseModel):
             "The URL for downloading is no longer reachable.",
         ],
     )
+
+
+class Result:
+    def __init__(self, agent_messages: list[Message], agent_result: AgentFindings):
+        self.passed = agent_result.passed
+        self.details = agent_result.details
+        self.messages = agent_messages
+        self.timestamp = datetime.now()
+
+    def __repr__(self):
+        return f"{self.__class__.__name__}(passed={self.passed}, details='{self.details}', timestamp={self.timestamp})"
