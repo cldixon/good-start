@@ -6,8 +6,7 @@ from pathlib import Path
 import frontmatter
 from jinja2 import BaseLoader, Environment
 
-GOOD_START = "Good start :)"
-BAD_START = "Bad start :("
+DEFAULT_PROMPT_PATH = Path(__file__).parent / "prompt.md"
 
 _jinja_env = Environment(loader=BaseLoader(), keep_trailing_newline=True)
 
@@ -22,6 +21,6 @@ class Prompt:
         return template.render(**kwargs)
 
 
-def load_prompt(path: str | Path) -> Prompt:
+def load_prompt(path: str | Path = DEFAULT_PROMPT_PATH) -> Prompt:
     post = frontmatter.load(str(path))
     return Prompt(text=post.content, metadata=dict(post.metadata))

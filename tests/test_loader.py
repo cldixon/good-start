@@ -65,6 +65,11 @@ class TestLoadPromptFromProject:
         assert prompt.metadata["version"] == "1.0.0"
         assert "{{good_start}}" in prompt.text
 
+    def test_loads_default_prompt(self):
+        prompt = load_prompt()
+        assert prompt.metadata["version"] == "1.0.0"
+        assert "{{good_start}}" in prompt.text
+
 
 class TestPromptRender:
     def test_renders_variables(self, prompt_file: Path):
