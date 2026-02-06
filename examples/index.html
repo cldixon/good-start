@@ -1,0 +1,307 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <meta name="generator" content="mkdocs-1.6.1, mkdocs-terminal-4.8.0">
+    
+    <meta name="description" content="Test whether a codebase's getting-started documentation is accurate and easy to follow"> 
+     
+    
+    <link rel="canonical" href="https://cldixon.github.io/good-start/examples/"><link rel="icon" type="image/png" sizes="192x192" href="../img/android-chrome-192x192.png" />
+<link rel="icon" type="image/png" sizes="512x512" href="../img/android-chrome-512x512.png" />
+<link rel="apple-touch-icon" sizes="180x180" href="../img/apple-touch-icon.png" />
+<link rel="shortcut icon" type="image/png" sizes="48x48" href="../img/favicon.ico" />
+<link rel="icon" type="image/png" sizes="16x16" href="../img/favicon-16x16.png" />
+<link rel="icon" type="image/png" sizes="32x32" href="../img/favicon-32x32.png" />
+
+
+    
+ 
+<title>Examples - good-start</title>
+
+
+<link href="../css/fontawesome/css/fontawesome.min.css" rel="stylesheet">
+<link href="../css/fontawesome/css/solid.min.css" rel="stylesheet">
+<link href="../css/normalize.css" rel="stylesheet">
+<link href="../css/terminal.css" rel="stylesheet">
+<link href="../css/theme.css" rel="stylesheet">
+<link href="../css/theme.tile_grid.css" rel="stylesheet">
+<link href="../css/theme.footer.css" rel="stylesheet">
+<!-- default color palette -->
+<link href="../css/palettes/default.css" rel="stylesheet">
+
+<!-- page layout -->
+<style>
+/* initially set page layout to a one column grid */
+.terminal-mkdocs-main-grid {
+    display: grid;
+    grid-column-gap: 1.4em;
+    grid-template-columns: auto;
+    grid-template-rows: auto;
+}
+
+/*  
+*   when side navigation is not hidden, use a two column grid.  
+*   if the screen is too narrow, fall back to the initial one column grid layout.
+*   in this case the main content will be placed under the navigation panel. 
+*/
+@media only screen and (min-width: 70em) {
+    .terminal-mkdocs-main-grid {
+        grid-template-columns: 4fr 9fr;
+    }
+}</style>
+
+
+
+     
+    
+    
+
+    
+    <!-- search css support -->
+<link href="../css/search/bootstrap-modal.css" rel="stylesheet">
+<!-- search scripts -->
+<script>
+    var base_url = "..",
+    shortcuts = "{}";
+</script>
+<script src="../js/jquery/jquery-1.10.1.min.js" defer></script>
+<script src="../js/bootstrap/bootstrap.min.js" defer></script>
+<script src="../js/mkdocs/base.js" defer></script>
+    
+    
+    
+    
+    <script src="../search/main.js"></script>
+    
+
+    
+</head>
+
+<body class="terminal"><div class="container">
+    <div class="terminal-nav">
+        <header class="terminal-logo">
+            <div id="mkdocs-terminal-site-name" class="logo terminal-prompt"><a href="https://cldixon.github.io/good-start/" class="no-style">good-start</a></div>
+        </header>
+        
+        <nav class="terminal-menu">
+            
+            <ul vocab="https://schema.org/" typeof="BreadcrumbList">
+                
+                
+                <li property="itemListElement" typeof="ListItem">
+                    <a href=".." class="menu-item " property="item" typeof="WebPage">
+                        <span property="name">Home</span>
+                    </a>
+                    <meta property="position" content="0">
+                </li>
+                
+                
+                <li property="itemListElement" typeof="ListItem">
+                    <a href="../cli/" class="menu-item " property="item" typeof="WebPage">
+                        <span property="name">CLI</span>
+                    </a>
+                    <meta property="position" content="1">
+                </li>
+                
+                
+                <li property="itemListElement" typeof="ListItem">
+                    <a href="../pytest-plugin/" class="menu-item " property="item" typeof="WebPage">
+                        <span property="name">Pytest Plugin</span>
+                    </a>
+                    <meta property="position" content="2">
+                </li>
+                
+                
+                <li property="itemListElement" typeof="ListItem">
+                    <a href="./" class="menu-item active" property="item" typeof="WebPage">
+                        <span property="name">Examples</span>
+                    </a>
+                    <meta property="position" content="3">
+                </li>
+                
+                    
+                    
+
+
+<li property="itemListElement" typeof="ListItem">
+    <a href="#" class="menu-item" data-toggle="modal" data-target="#mkdocs_search_modal" property="item" typeof="SearchAction">
+        <i aria-hidden="true" class="fa fa-search"></i> <span property="name">Search</span>
+    </a>
+    <meta property="position" content="4">
+</li>
+                    
+            </ul>
+            
+        </nav>
+    </div>
+</div>
+        
+    <div class="container">
+        <div class="terminal-mkdocs-main-grid"><aside id="terminal-mkdocs-side-panel"><nav>
+    <ul class="terminal-mkdocs-side-nav-items">
+        
+          <li class="terminal-mkdocs-side-nav-li">
+    
+    
+    
+        
+        
+            <a class="terminal-mkdocs-side-nav-item" href="..">Home</a>
+        
+    
+    
+    
+       </li>
+        
+          <li class="terminal-mkdocs-side-nav-li">
+    
+    
+    
+        
+        
+            <a class="terminal-mkdocs-side-nav-item" href="../cli/">CLI</a>
+        
+    
+    
+    
+       </li>
+        
+          <li class="terminal-mkdocs-side-nav-li">
+    
+    
+    
+        
+        
+            <a class="terminal-mkdocs-side-nav-item" href="../pytest-plugin/">Pytest Plugin</a>
+        
+    
+    
+    
+       </li>
+        
+          <li class="terminal-mkdocs-side-nav-li">
+    
+    
+    
+        
+        <span class="terminal-mkdocs-side-nav-item--active">Examples</span>
+    
+    
+    
+       </li>
+        
+    </ul>
+</nav><hr>
+<nav>
+    <ul>
+        <li><a href="#examples">Examples</a></li>
+        <li><a href="#quick-check-during-development">Quick check during development</a></li><li><a href="#add-to-ci-with-the-cli">Add to CI with the CLI</a></li><li><a href="#add-to-your-test-suite">Add to your test suite</a></li><li><a href="#check-multiple-docs-with-markers">Check multiple docs with markers</a></li><li><a href="#custom-prompt-for-stricter-checks">Custom prompt for stricter checks</a></li>
+    </ul>
+</nav>
+</aside>
+            <main id="terminal-mkdocs-main-content">
+<section id="mkdocs-terminal-content">
+    <h1 id="examples">Examples</h1>
+<p>A few common ways to use Good Start.</p>
+<h2 id="quick-check-during-development">Quick check during development</h2>
+<p>Run a one-off check while writing your docs:</p>
+<pre><code class="language-sh">good-start check README.md
+</code></pre>
+<p>Review the output, fix any issues, and run it again.</p>
+<h2 id="add-to-ci-with-the-cli">Add to CI with the CLI</h2>
+<p>Add a step to your GitHub Actions workflow:</p>
+<pre><code class="language-yaml">- name: Check getting-started docs
+  env:
+    ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+  run: good-start check .
+</code></pre>
+<p>The process exits with code 1 on failure, so your pipeline will catch regressions in your setup instructions.</p>
+<h2 id="add-to-your-test-suite">Add to your test suite</h2>
+<p>Use the pytest plugin to make documentation checks part of your regular test runs:</p>
+<pre><code class="language-python"># tests/test_docs.py
+
+def test_readme(good_start):
+    result = good_start(&quot;README.md&quot;)
+    assert result.passed, result.details
+
+
+def test_quickstart_guide(good_start):
+    result = good_start(&quot;docs/QUICKSTART.md&quot;)
+    assert result.passed, result.details
+</code></pre>
+<p>Run them:</p>
+<pre><code class="language-sh">pytest -m good_start -v
+</code></pre>
+<p>Or skip them when you want a fast feedback loop:</p>
+<pre><code class="language-sh">pytest -m &quot;not good_start&quot;
+</code></pre>
+<h2 id="check-multiple-docs-with-markers">Check multiple docs with markers</h2>
+<p>Use markers to configure each test independently:</p>
+<pre><code class="language-python">import pytest
+
+
+@pytest.mark.good_start(target=&quot;INSTALL.md&quot;)
+def test_install_docs(good_start):
+    result = good_start()
+    assert result.passed, result.details
+
+
+@pytest.mark.good_start(target=&quot;CONTRIBUTING.md&quot;)
+def test_contributing_docs(good_start):
+    result = good_start()
+    assert result.passed, result.details
+</code></pre>
+<h2 id="custom-prompt-for-stricter-checks">Custom prompt for stricter checks</h2>
+<p>Write a custom prompt template and pass it in:</p>
+<pre><code class="language-python">def test_strict_check(good_start):
+    result = good_start(
+        &quot;README.md&quot;,
+        prompt_path=&quot;tests/prompts/strict.md&quot;,
+    )
+    assert result.passed, result.details
+</code></pre>
+<p>This lets you tailor the agent's behavior -- for example, requiring that every command exits cleanly, or that specific tools are installed as part of setup.</p>
+</section>
+
+            </main>
+        </div>
+        <hr><footer>
+    <div class="terminal-mkdocs-footer-grid">
+        <div id="terminal-mkdocs-footer-copyright-info">
+             Site built with <a href="http://www.mkdocs.org">MkDocs</a> and <a href="https://github.com/ntno/mkdocs-terminal">Terminal for MkDocs</a>.
+        </div>
+    </div>
+</footer>
+    </div>
+
+    
+    <div class="modal" id="mkdocs_search_modal" tabindex="-1" role="alertdialog" aria-modal="true" aria-labelledby="searchModalLabel">
+    <div class="modal-dialog modal-lg" role="search">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="searchModalLabel">Search</h5>
+                <button type="button" class="close btn btn-default btn-ghost" data-dismiss="modal" aria-label="Close">x</button>
+            </div>
+            <div class="modal-body">
+                <p id="searchInputLabel">Type to start searching</p>
+                <form>
+                    <div class="form-group">
+                        <input type="search" class="form-control" aria-labelledby="searchInputLabel" placeholder="" id="mkdocs-search-query" title="Please enter search terms here">
+                    </div>
+                </form>
+                <div id="mkdocs-search-results" data-no-results-text="No document matches found"></div>
+            </div>
+            <div class="modal-footer">
+            </div>
+        </div>
+    </div>
+</div>
+    
+    
+</body>
+
+</html>
