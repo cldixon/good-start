@@ -12,5 +12,6 @@ wheels/
 
 .pytest_cache/
 .ruff_cache/
+site/
 .DS_Store
 settings.local.json
