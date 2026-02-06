@@ -9,11 +9,15 @@ dependencies = [
     "jinja2>=3.1.6",
     "pydantic>=2.12.5",
     "python-frontmatter>=1.1.0",
+    "rich>=14.3.2",
     "typer>=0.16",
 ]
 
 [project.scripts]
 good-start = "good_start.cli:app"
+
+[project.entry-points."pytest11"]
+good-start = "good_start.plugin"
 
 [build-system]
 requires = ["hatchling"]
