@@ -21,8 +21,9 @@ console = Console(stderr=True)
 class ContainerRuntime:
     """Runs the agent inside a container (Podman or Docker)."""
 
-    def __init__(self) -> None:
+    def __init__(self, verbose: bool = False) -> None:
         self._engine = _detect_engine()
+        self._verbose = verbose
 
     async def run(self, prompt: str, target: str) -> Result:
         self._ensure_image()
@@ -51,17 +52,20 @@ class ContainerRuntime:
             target,
         ]
 
-        console.print(f"[dim]Container starting ({self._engine})...[/dim]")
-        console.print("[dim]Agent is working...[/dim]")
+        with console.status(
+            f"[dim]Container started ({self._engine}). Agent is working...[/dim]",
+            spinner="dots",
+        ) as status:
+            proc = subprocess.run(cmd, capture_output=True, text=True, timeout=600)
 
-        proc = subprocess.run(cmd, capture_output=True, text=True, timeout=600)
-
-        console.print("[dim]Agent finished. Stopping container...[/dim]")
+            status.update("[dim]Agent finished. Stopping container...[/dim]")
 
         if proc.returncode != 0:
             error_details = (
                 proc.stderr.strip() or "Container exited with non-zero status."
             )
+            if self._verbose:
+                console.print(f"[dim]{error_details}[/dim]")
             findings = AgentFindings(
                 passed=False, details=f"Container error: {error_details}"
             )
@@ -71,8 +75,6 @@ class ContainerRuntime:
         stdout_lines = proc.stdout.strip().splitlines()
         json_line = stdout_lines[-1] if stdout_lines else "{}"
         findings = AgentFindings.model_validate_json(json_line)
-
-        console.print("[dim]Container stopped.[/dim]")
         return Result(agent_messages=[], agent_result=findings)
 
     def _ensure_image(self) -> None:
@@ -90,20 +92,27 @@ class ContainerRuntime:
                 "Cannot build the agent image."
             )
 
-        console.print("[dim]Building agent image (first run)...[/dim]")
-        subprocess.run(
-            [
-                self._engine,
-                "build",
-                "-t",
-                FULL_IMAGE,
-                "-f",
-                str(_CONTAINERFILE),
-                str(_CONTAINERFILE.parent),
-            ],
-            check=True,
-        )
-        console.print("[dim]Image built.[/dim]")
+        with console.status(
+            "[dim]Building agent image (first run)...[/dim]", spinner="dots"
+        ):
+            build_result = subprocess.run(
+                [
+                    self._engine,
+                    "build",
+                    "-t",
+                    FULL_IMAGE,
+                    "-f",
+                    str(_CONTAINERFILE),
+                    str(_CONTAINERFILE.parent),
+                ],
+                capture_output=not self._verbose,
+                text=True,
+            )
+            if build_result.returncode != 0:
+                stderr = (
+                    build_result.stderr if not self._verbose else "See output above."
+                )
+                raise RuntimeError(f"Image build failed:\n{stderr}")
 
 
 def _detect_engine() -> str:

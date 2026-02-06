@@ -94,7 +94,7 @@ class TestNoContainerFlag:
 
         runner.invoke(app, ["check", ".", "--no-container"])
 
-        mock_resolve.assert_called_once_with(no_container=True)
+        mock_resolve.assert_called_once_with(no_container=True, verbose=False)
 
     @patch("good_start.cli.resolve_runtime")
     def test_default_uses_container(self, mock_resolve):
@@ -103,7 +103,7 @@ class TestNoContainerFlag:
 
         runner.invoke(app, ["check", "."])
 
-        mock_resolve.assert_called_once_with(no_container=False)
+        mock_resolve.assert_called_once_with(no_container=False, verbose=False)
 
 
 class TestHelpOutput:

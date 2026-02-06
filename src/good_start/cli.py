@@ -33,6 +33,12 @@ def check(
         "--no-container",
         help="Run the agent directly on the host instead of in a container.",
     ),
+    verbose: bool = typer.Option(
+        False,
+        "--verbose",
+        "-v",
+        help="Show detailed container build and run output.",
+    ),
 ) -> None:
     """Run the good-start agent against a project's documentation."""
     target_path = Path(target)
@@ -43,7 +49,7 @@ def check(
     prompt = load_prompt()
     rendered = prompt.render(target=target)
 
-    runtime = resolve_runtime(no_container=no_container)
+    runtime = resolve_runtime(no_container=no_container, verbose=verbose)
     result = asyncio.run(runtime.run(rendered, target))
 
     # -- build output

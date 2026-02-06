@@ -34,11 +34,22 @@ class Agent:
         await main()
 
         ## - get result message
-        result_message = self.messages[-1]
-        assert isinstance(result_message, ResultMessage)
+        result_message = self.messages[-1] if self.messages else None
 
         ## -- take structured output result
-        agent_result = AgentFindings.model_validate(result_message.structured_output)
+        if (
+            isinstance(result_message, ResultMessage)
+            and result_message.structured_output is not None
+        ):
+            agent_result = AgentFindings.model_validate(
+                result_message.structured_output
+            )
+        else:
+            agent_result = AgentFindings(
+                passed=False,
+                details="Agent did not produce structured output. "
+                "It may have encountered an error or hit a limit.",
+            )
 
         ## -- create final test result object
         test_result = Result(agent_messages=self.messages, agent_result=agent_result)
