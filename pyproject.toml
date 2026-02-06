@@ -1,9 +1,19 @@
 [project]
 name = "good-start"
 version = "0.1.0"
-description = "Add your description here"
+description = "Test whether a codebase's getting-started documentation is accurate and easy to follow"
 readme = "README.md"
+license = "MIT"
 requires-python = ">=3.12"
+authors = [{ name = "cldixon" }]
+keywords = ["documentation", "testing", "agent"]
+classifiers = [
+    "Development Status :: 3 - Alpha",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.12",
+]
 dependencies = [
     "claude-agent-sdk>=0.1.30",
     "jinja2>=3.1.6",
@@ -12,6 +22,11 @@ dependencies = [
     "rich>=14.3.2",
     "typer>=0.16",
 ]
+
+[project.urls]
+Homepage = "https://github.com/cldixon/good-start"
+Repository = "https://github.com/cldixon/good-start"
+Issues = "https://github.com/cldixon/good-start/issues"
 
 [project.scripts]
 good-start = "good_start.cli:app"
