@@ -119,4 +119,6 @@ class TestHelpOutput:
         result = runner.invoke(app, ["check", "--help"])
         assert result.exit_code == 0
         assert "target" in result.output.lower()
-        assert "no-container" in result.output
+        # Rich/Typer inserts ANSI color codes that split option names;
+        # check for the meaningful substring instead.
+        assert "container" in result.output
