@@ -63,6 +63,10 @@ def check(
     body.append(status)
     body.append(f"\n\n{result.details}")
 
+    if result.verification_command:
+        body.append("\n\nVerification: ")
+        body.append(Text(result.verification_command, style="dim"))
+
     panel = Panel(
         body,
         title="good-start",

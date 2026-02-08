@@ -26,6 +26,8 @@ class TestEntrypoint:
         data = json.loads(captured.out.strip())
         assert data["passed"] is True
         assert data["details"] == "All good"
+        assert data["steps"] == []
+        assert data["verification_command"] is None
 
     @patch("good_start._entrypoint.Agent")
     def test_failed_result(self, mock_agent_cls, capsys, monkeypatch):
@@ -41,3 +43,17 @@ class TestEntrypoint:
         data = json.loads(captured.out.strip())
         assert data["passed"] is False
         assert data["details"] == "Step 2 failed"
+
+    @patch("good_start._entrypoint.Agent")
+    def test_passes_on_tool_use_callback(self, mock_agent_cls, capsys, monkeypatch):
+        result = _make_result(passed=True, details="OK")
+        mock_agent_cls.return_value.run = AsyncMock(return_value=result)
+
+        monkeypatch.setattr(
+            sys, "argv", ["_entrypoint", "--prompt", "test prompt", "--target", "."]
+        )
+        main()
+
+        call_kwargs = mock_agent_cls.return_value.run.call_args[1]
+        assert "on_tool_use" in call_kwargs
+        assert call_kwargs["on_tool_use"] is not None
