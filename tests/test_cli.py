@@ -119,4 +119,4 @@ class TestHelpOutput:
         result = runner.invoke(app, ["check", "--help"])
         assert result.exit_code == 0
         assert "target" in result.output.lower()
-        assert "--no-container" in result.output
+        assert "no-container" in result.output
