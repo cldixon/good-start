@@ -15,3 +15,5 @@ wheels/
 site/
 .DS_Store
 settings.local.json
+
+TEST_README.md

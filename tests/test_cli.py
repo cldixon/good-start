@@ -1,5 +1,5 @@
 from datetime import datetime
-from unittest.mock import AsyncMock, patch
+from unittest.mock import AsyncMock, MagicMock, patch
 
 from typer.testing import CliRunner
 
@@ -14,12 +14,17 @@ def _make_result(passed: bool, details: str) -> Result:
     return Result(agent_messages=[], agent_result=findings)
 
 
+def _mock_runtime(result: Result) -> MagicMock:
+    runtime = MagicMock()
+    runtime.run = AsyncMock(return_value=result)
+    return runtime
+
+
 class TestCheckCommand:
-    @patch("good_start.cli.Agent")
-    def test_passed_result(self, mock_agent_cls):
+    @patch("good_start.cli.resolve_runtime")
+    def test_passed_result(self, mock_resolve):
         result = _make_result(passed=True, details="All steps completed successfully.")
-        instance = mock_agent_cls.return_value
-        instance.run = AsyncMock(return_value=result)
+        mock_resolve.return_value = _mock_runtime(result)
 
         cli_result = runner.invoke(app, ["check", "."])
 
@@ -27,13 +32,12 @@ class TestCheckCommand:
         assert "PASSED" in cli_result.output
         assert "All steps completed successfully." in cli_result.output
 
-    @patch("good_start.cli.Agent")
-    def test_failed_result(self, mock_agent_cls):
+    @patch("good_start.cli.resolve_runtime")
+    def test_failed_result(self, mock_resolve):
         result = _make_result(
             passed=False, details="pip install step failed due to missing dependency."
         )
-        instance = mock_agent_cls.return_value
-        instance.run = AsyncMock(return_value=result)
+        mock_resolve.return_value = _mock_runtime(result)
 
         cli_result = runner.invoke(app, ["check", "."])
 
@@ -47,44 +51,59 @@ class TestCheckCommand:
         assert cli_result.exit_code == 1
         assert "does not exist" in cli_result.output
 
-    @patch("good_start.cli.Agent")
-    def test_specific_file_target(self, mock_agent_cls):
+    @patch("good_start.cli.resolve_runtime")
+    def test_specific_file_target(self, mock_resolve):
         result = _make_result(passed=True, details="README checks passed.")
-        instance = mock_agent_cls.return_value
-        instance.run = AsyncMock(return_value=result)
+        mock_resolve.return_value = _mock_runtime(result)
 
         cli_result = runner.invoke(app, ["check", "README.md"])
 
         assert cli_result.exit_code == 0
-        instance.run.assert_called_once()
         # verify the rendered prompt includes the specific file target
-        rendered_prompt = instance.run.call_args[0][0]
+        rendered_prompt = mock_resolve.return_value.run.call_args[0][0]
         assert "README.md" in rendered_prompt
 
-    @patch("good_start.cli.Agent")
-    def test_default_target_is_dot(self, mock_agent_cls):
+    @patch("good_start.cli.resolve_runtime")
+    def test_default_target_is_dot(self, mock_resolve):
         result = _make_result(passed=True, details="Found and verified README.")
-        instance = mock_agent_cls.return_value
-        instance.run = AsyncMock(return_value=result)
+        mock_resolve.return_value = _mock_runtime(result)
 
         cli_result = runner.invoke(app, ["check"])
 
         assert cli_result.exit_code == 0
-        rendered_prompt = instance.run.call_args[0][0]
+        rendered_prompt = mock_resolve.return_value.run.call_args[0][0]
         assert "getting-started documentation" in rendered_prompt
 
-    @patch("good_start.cli.Agent")
-    def test_output_includes_timestamp(self, mock_agent_cls):
+    @patch("good_start.cli.resolve_runtime")
+    def test_output_includes_timestamp(self, mock_resolve):
         result = _make_result(passed=True, details="OK")
-        instance = mock_agent_cls.return_value
-        instance.run = AsyncMock(return_value=result)
+        mock_resolve.return_value = _mock_runtime(result)
 
         cli_result = runner.invoke(app, ["check", "."])
 
         assert cli_result.exit_code == 0
-        # timestamp is in the panel subtitle as YYYY-MM-DD HH:MM:SS
         year = str(datetime.now().year)
         assert year in cli_result.output
+
+
+class TestNoContainerFlag:
+    @patch("good_start.cli.resolve_runtime")
+    def test_no_container_flag(self, mock_resolve):
+        result = _make_result(passed=True, details="OK")
+        mock_resolve.return_value = _mock_runtime(result)
+
+        runner.invoke(app, ["check", ".", "--no-container"])
+
+        mock_resolve.assert_called_once_with(no_container=True, verbose=False)
+
+    @patch("good_start.cli.resolve_runtime")
+    def test_default_uses_container(self, mock_resolve):
+        result = _make_result(passed=True, details="OK")
+        mock_resolve.return_value = _mock_runtime(result)
+
+        runner.invoke(app, ["check", "."])
+
+        mock_resolve.assert_called_once_with(no_container=False, verbose=False)
 
 
 class TestHelpOutput:
@@ -100,3 +119,6 @@ class TestHelpOutput:
         result = runner.invoke(app, ["check", "--help"])
         assert result.exit_code == 0
         assert "target" in result.output.lower()
+        # Rich/Typer inserts ANSI color codes that split option names;
+        # check for the meaningful substring instead.
+        assert "container" in result.output
