@@ -9,7 +9,7 @@ from claude_agent_sdk import (
 )
 
 from good_start.loader import Prompt, load_prompt
-from good_start.result import AgentFindings, Result
+from good_start.result import AgentFindings, Result, agent_findings_schema
 
 
 class Agent:
@@ -44,7 +44,7 @@ class Agent:
                     permission_mode=self.permission_mode,  # ty: ignore[invalid-argument-type]
                     output_format={
                         "type": "json_schema",
-                        "schema": AgentFindings.model_json_schema(),
+                        "schema": agent_findings_schema(),
                     },
                 ),
             ):

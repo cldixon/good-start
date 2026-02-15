@@ -50,7 +50,11 @@ def check(
     rendered = prompt.render(target=target)
 
     runtime = resolve_runtime(no_container=no_container, verbose=verbose)
-    result = asyncio.run(runtime.run(rendered, target))
+    try:
+        result = asyncio.run(runtime.run(rendered, target))
+    except RuntimeError as exc:
+        console.print(f"[red]Error:[/red] {exc}")
+        raise typer.Exit(code=1)
 
     # -- build output
     if result.passed:

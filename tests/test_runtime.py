@@ -117,7 +117,7 @@ class TestContainerRuntime:
         result = asyncio.run(rt.run("prompt", "."))
 
         assert result.passed is False
-        assert "Container error" in result.details
+        assert "Container exited with code 1" in result.details
 
     @patch("good_start.runtime._container.subprocess.Popen")
     @patch("good_start.runtime._container.subprocess.run")
@@ -137,6 +137,16 @@ class TestContainerRuntime:
         # Second subprocess.run call should be the build command
         build_call = mock_run.call_args_list[1]
         assert "build" in build_call[0][0]
+
+    @patch("good_start.runtime._container.subprocess.run")
+    @patch("good_start.runtime._container.shutil.which", return_value="/usr/bin/podman")
+    def test_missing_api_key_raises(self, _mock_which, mock_run, tmp_path, monkeypatch):
+        mock_run.return_value = subprocess.CompletedProcess([], 0)
+        monkeypatch.delenv("ANTHROPIC_API_KEY", raising=False)
+        monkeypatch.chdir(tmp_path)  # no .env file here
+        rt = ContainerRuntime()
+        with pytest.raises(RuntimeError, match="ANTHROPIC_API_KEY is not set"):
+            asyncio.run(rt.run("prompt", "."))
 
     @patch("good_start.runtime._container.subprocess.Popen")
     @patch("good_start.runtime._container.subprocess.run")
