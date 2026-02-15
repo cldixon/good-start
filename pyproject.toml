@@ -1,6 +1,6 @@
 [project]
 name = "good-start"
-version = "0.1.0"
+version = "0.1.1"
 description = "Test whether a codebase's getting-started documentation is accurate and easy to follow"
 readme = "README.md"
 license = "MIT"
