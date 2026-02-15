@@ -50,7 +50,11 @@ def check(
     rendered = prompt.render(target=target)
 
     runtime = resolve_runtime(no_container=no_container, verbose=verbose)
-    result = asyncio.run(runtime.run(rendered, target))
+    try:
+        result = asyncio.run(runtime.run(rendered, target))
+    except RuntimeError as exc:
+        console.print(f"[red]Error:[/red] {exc}")
+        raise typer.Exit(code=1)
 
     # -- build output
     if result.passed:
@@ -62,6 +66,10 @@ def check(
     body.append("Status: ")
     body.append(status)
     body.append(f"\n\n{result.details}")
+
+    if result.verification_command:
+        body.append("\n\nVerification: ")
+        body.append(Text(result.verification_command, style="dim"))
 
     panel = Panel(
         body,

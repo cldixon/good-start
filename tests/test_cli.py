@@ -85,6 +85,31 @@ class TestCheckCommand:
         year = str(datetime.now().year)
         assert year in cli_result.output
 
+    @patch("good_start.cli.resolve_runtime")
+    def test_shows_verification_command(self, mock_resolve):
+        findings = AgentFindings(
+            passed=True,
+            details="All good.",
+            verification_command='python -c "import good_start"',
+        )
+        result = Result(agent_messages=[], agent_result=findings)
+        mock_resolve.return_value = _mock_runtime(result)
+
+        cli_result = runner.invoke(app, ["check", "."])
+
+        assert cli_result.exit_code == 0
+        assert 'python -c "import good_start"' in cli_result.output
+
+    @patch("good_start.cli.resolve_runtime")
+    def test_no_verification_command(self, mock_resolve):
+        result = _make_result(passed=True, details="OK")
+        mock_resolve.return_value = _mock_runtime(result)
+
+        cli_result = runner.invoke(app, ["check", "."])
+
+        assert cli_result.exit_code == 0
+        assert "Verification" not in cli_result.output
+
 
 class TestNoContainerFlag:
     @patch("good_start.cli.resolve_runtime")
