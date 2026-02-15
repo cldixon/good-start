@@ -87,11 +87,12 @@ def _mock_popen(stdout: str, stderr: str = "", returncode: int = 0):
     return proc
 
 
+@patch("good_start.runtime._container._resolve_api_key", return_value="sk-test-key")
 class TestContainerRuntime:
     @patch("good_start.runtime._container.subprocess.Popen")
     @patch("good_start.runtime._container.subprocess.run")
     @patch("good_start.runtime._container.shutil.which", return_value="/usr/bin/podman")
-    def test_successful_run(self, _mock_which, mock_run, mock_popen):
+    def test_successful_run(self, _mock_which, mock_run, mock_popen, _mock_key):
         findings_json = '{"passed": true, "details": "All good"}'
         # subprocess.run is used for image inspect
         mock_run.return_value = subprocess.CompletedProcess([], 0)
@@ -107,7 +108,7 @@ class TestContainerRuntime:
     @patch("good_start.runtime._container.subprocess.Popen")
     @patch("good_start.runtime._container.subprocess.run")
     @patch("good_start.runtime._container.shutil.which", return_value="/usr/bin/podman")
-    def test_container_failure(self, _mock_which, mock_run, mock_popen):
+    def test_container_failure(self, _mock_which, mock_run, mock_popen, _mock_key):
         # subprocess.run is used for image inspect
         mock_run.return_value = subprocess.CompletedProcess([], 0)
         # subprocess.Popen is used for the container run (fails)
@@ -122,7 +123,9 @@ class TestContainerRuntime:
     @patch("good_start.runtime._container.subprocess.Popen")
     @patch("good_start.runtime._container.subprocess.run")
     @patch("good_start.runtime._container.shutil.which", return_value="/usr/bin/podman")
-    def test_builds_image_when_missing(self, _mock_which, mock_run, mock_popen):
+    def test_builds_image_when_missing(
+        self, _mock_which, mock_run, mock_popen, _mock_key
+    ):
         findings_json = '{"passed": true, "details": "OK"}'
         mock_run.side_effect = [
             subprocess.CompletedProcess([], 1),  # image inspect — not found
@@ -140,10 +143,11 @@ class TestContainerRuntime:
 
     @patch("good_start.runtime._container.subprocess.run")
     @patch("good_start.runtime._container.shutil.which", return_value="/usr/bin/podman")
-    def test_missing_api_key_raises(self, _mock_which, mock_run, tmp_path, monkeypatch):
+    def test_missing_api_key_raises(
+        self, _mock_which, mock_run, _mock_key, tmp_path, monkeypatch
+    ):
         mock_run.return_value = subprocess.CompletedProcess([], 0)
-        monkeypatch.delenv("ANTHROPIC_API_KEY", raising=False)
-        monkeypatch.chdir(tmp_path)  # no .env file here
+        _mock_key.return_value = None  # override class-level mock
         rt = ContainerRuntime()
         with pytest.raises(RuntimeError, match="ANTHROPIC_API_KEY is not set"):
             asyncio.run(rt.run("prompt", "."))
@@ -151,7 +155,9 @@ class TestContainerRuntime:
     @patch("good_start.runtime._container.subprocess.Popen")
     @patch("good_start.runtime._container.subprocess.run")
     @patch("good_start.runtime._container.shutil.which", return_value="/usr/bin/podman")
-    def test_streams_tool_events_from_stderr(self, _mock_which, mock_run, mock_popen):
+    def test_streams_tool_events_from_stderr(
+        self, _mock_which, mock_run, mock_popen, _mock_key
+    ):
         findings_json = '{"passed": true, "details": "OK"}'
         stderr_lines = '{"tool": "Bash", "input": {"command": "pip install foo"}}\n'
         mock_run.return_value = subprocess.CompletedProcess([], 0)
